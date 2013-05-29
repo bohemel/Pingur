@@ -3,6 +3,8 @@
 namespace Pingur;
 
 class Image {
+  
+  private static $db = FALSE;
 
   public function __construct($data) {
     $this->data = $data;
@@ -33,13 +35,19 @@ class Image {
       if (strpos($_FILES['files']['type'][$i], 'image') === FALSE)
         break;
       
-      $final_filename = Config::read('image_data_dir')
-        . DIRECTORY_SEPARATOR . preg_replace('/[^a-zA-Z0-9-_.]/', '', $_FILES['files']['name'][$i]);
-      $thumb_filename = Config::read('image_data_dir') . DIRECTORY_SEPARATOR . 't'
-        . DIRECTORY_SEPARATOR . preg_replace('/[^a-zA-Z0-9-_.]/', '', $_FILES['files']['name'][$i]);
+      $ext = strtolower(substr($_FILES['files']['name'][$i], strrpos($_FILES['files']['name'][$i], '.')));
+      
+      // create filenames
+      $final_filename = Config::read('image_data_dir') . DIRECTORY_SEPARATOR .
+        uniqid() . $ext;
+      $thumb_filename = dirname($final_filename) . DIRECTORY_SEPARATOR . 
+        't' . DIRECTORY_SEPARATOR . basename($final_filename);
+      
       move_uploaded_file($_FILES['files']['tmp_name'][$i], $final_filename);
+      
       // create thumbnail
       ImageEditor::createThumbnail($final_filename, $thumb_filename);
+      
       $collection->add(new self(array(
         'filename' => $final_filename,
         'thumbnail' => $thumb_filename,
@@ -57,6 +65,9 @@ class Image {
           'thumbnail' => Config::read('image_data_dir') . DIRECTORY_SEPARATOR . 't' . DIRECTORY_SEPARATOR . basename($file),
         )));
     }
+    $collection->sort(function($a, $b) {
+      return filemtime($a->filename) < filemtime($b->filename);
+    });
     return $collection;
   }
 }

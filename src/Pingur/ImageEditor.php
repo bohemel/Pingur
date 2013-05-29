@@ -5,6 +5,11 @@ namespace Pingur;
 class ImageEditor {
   
   public static function createThumbnail($src, $dst, $max_height = 200, $max_width = 200) {
+    
+    // try to create the dir if not exists
+    if (!is_dir(dirname($dst)))
+      mkdir(dirname($dst));
+    
     list($width, $height) = getimagesize($src);    
     $i_src = imagecreatefromstring(file_get_contents($src));
     $f_width = $max_width;

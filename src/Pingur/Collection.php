@@ -23,6 +23,10 @@ class Collection implements \Iterator {
     return '[' . implode(',', $serialzed) . ']';
   }
   
+  public function sort($callable) {
+    $this->data = usort($this->objects, $callable);
+  }
+  
   // iterator functions
   public function rewind() {
     $this->position = 0;
