@@ -13,7 +13,7 @@
 <?php
 
 foreach($images as $image) {
-  echo '<div class="image"><div class="inner"><a href="' . $image->filename .'"><img src="' . $image->thumbnail . '" /></a></div></div>';
+  echo '<div class="image"><a href="' . $image->filename .'"><img src="' . $image->thumbnail . '" /></a></div>';
 }
 
 ?>
@@ -31,14 +31,35 @@ foreach($images as $image) {
 <script>
 $(function () {
   
+  // Begin setting up the drag handlers
+  // this is just for the visuals
+  
+  // on the body
+  $(document).on('dragover', function() {
+    $('body').addClass('target');
+  });
+  
+  // on the drop zone
+  $('#drop-zone').on('dragleave', function() {
+    $('body').removeClass('target');
+  }).on('drop', function() {
+    $('body').removeClass('target');
+  })
+  
+  
+  // 
+  
   $('#fileupload').fileupload({
     dataType: 'json',
+    dropZone: $('#drop-zone'),
     done: function (e, data) {
-      $.each(data.result.files, function (index, file) {
-        $('<p/>').text(file.name).appendTo(document.body);
+      $.each(data.result, function(i, val) {
+        $('#image-container').prepend('<div class="image"><a href="'+val.filename+'"><img src="'+val.thumbnail+'"></a></div>');
       });
     }
   });
+
+  
 });
 </script>
 </body> 
