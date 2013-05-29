@@ -1,3 +1,4 @@
 i
 composer.phar
 vendor
+!resources/js/vendor
