@@ -68,3 +68,7 @@ body.target #drop-zone {
   width: 100%;
   margin-top: -15px;
 }
+
+div.image.uploading img {
+  opacity: 0.5;
+}

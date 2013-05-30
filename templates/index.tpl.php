@@ -28,8 +28,24 @@ foreach($images as $image) {
 <script src="resources/js/vendor/jquery.ui.widget.js"></script>
 <script src="resources/js/jquery.iframe-transport.js"></script>
 <script src="resources/js/jquery.fileupload.js"></script>
+<script src="resources/js/jquery.knob.js"></script>
 <script>
 $(function () {
+  
+  function renderUpload(files) {
+    var elems = [];
+    $.each(files, function(i, file) {
+      var el = $('<div class="image uploading">Loading preview...</div>')
+        .prependTo('#image-container');
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        el.html('<img src="' + e.target.result + '" />');
+      };
+      reader.readAsDataURL(file);
+      elems.push(el);
+    });
+    return elems;
+  }
   
   // Begin setting up the drag handlers
   // this is just for the visuals
@@ -46,15 +62,18 @@ $(function () {
     $('body').removeClass('target');
   })
   
-  
-  // 
-  
+  //
   $('#fileupload').fileupload({
     dataType: 'json',
     dropZone: $('#drop-zone'),
-    done: function (e, data) {
+    acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+    add: function(e, data) {
+      data.context = renderUpload(data.files);
+      data.submit();
+    },
+    done: function(e, data) {
       $.each(data.result, function(i, val) {
-        $('#image-container').prepend('<div class="image"><a href="'+val.filename+'"><img src="'+val.thumbnail+'"></a></div>');
+        data.context[i].html('<a href="'+val.filename+'"><img src="'+val.thumbnail+'"></a>').removeClass('uploading');
       });
     }
   });
